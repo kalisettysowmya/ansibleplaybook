@@ -1,0 +1,21 @@
+---
+- name: Terminate an EC2 Instance
+  hosts: localhost
+  connection: local
+  gather_facts: no
+  tasks:
+    - name: Terminate an EC2 Instance
+      amazon.aws.ec2_instance:
+        aws_access_key: xxxxxxxxxxxxxxxxxxxx
+        aws_secret_key: xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+        name: Ansible Development Server
+        instance_type: t2.micro
+        instance_ids: i-xxxxxxxxxxxxxxxxxxxxxx
+        key_name: Keypair1
+        image_id: ami-xxxxxxxxxxxxxxxxxxxxx
+        region: us-east-2
+        state: absent
+        vpc_subnet_id: subnet-xxxxxxxxxxxxxxxxx
+        security_groups: sg-xxxxxxxxxxxxxxxxx
+        wait: yes
+      register: termination

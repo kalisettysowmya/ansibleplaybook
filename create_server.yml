@@ -1,0 +1,21 @@
+---
+- name: Create an EC2 Instance
+  hosts: localhost
+  connection: local
+  gather_facts: no
+  tasks:
+    - name: Create an EC2 Instance
+      amazon.aws.ec2_instance:
+        aws_access_key: xxxxxxxxxxxxxxxxxxxx 
+        aws_secret_key: xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx 
+        name: Ansible-Created-Instance
+        instance_type: t2.micro
+        key_name: xxxxxxxx
+        network:
+          assign_public_ip: true
+        image_id: ami-xxxxxxxxxxxxxxxxx
+        region: us-east-2
+        vpc_subnet_id: subnet-xxxxxxxxxxxxxxxxxx
+        security_groups: sg-xxxxxxxxxxxxxxxxx
+        wait: yes
+      register: ec2 
