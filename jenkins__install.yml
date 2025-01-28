@@ -1,0 +1,72 @@
+---
+- name: Create EC2 instance and install Jenkins
+  hosts: localhost
+  gather_facts: no
+  collections:
+    - amazon.aws
+  vars:
+    access_key: "xxxxxxxxxxxxxxxxxxxx"
+    secret_key: "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+    aws_region: "us-east-2"
+    instance_type: "t2.micro"
+    ami_id: "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+    key_name: "xxxxxxxxxxxxxxx"
+    security_group_name: "jenkins-sg"
+    subnet_id: "xxxxxxxxxxxxxxxx"
+    jenkins_port: 8080
+
+
+  tasks:
+    - name: Create a security group for Jenkins
+      amazon.aws.ec2_security_group:
+        aws_access_key: "{{ access_key }}"
+        aws_secret_key: "{{ secret_key }}"
+        name: "{{ security_group_name }}"
+        description: "Allow HTTP and Jenkins traffic"
+        region: "{{ aws_region }}"
+        rules:
+          - proto: tcp
+            from_port: 22
+            to_port: 22
+            cidr_ip: 0.0.0.0/0
+          - proto: tcp
+            from_port: 80
+            to_port: 80
+            cidr_ip: 0.0.0.0/0
+          - proto: tcp
+            from_port: "{{ jenkins_port }}"
+            to_port: "{{ jenkins_port }}"
+            cidr_ip: 0.0.0.0/0
+        rules_egress:
+          - proto: -1
+            from_port: -1
+            to_port: -1
+            cidr_ip: 0.0.0.0/0
+      register: sg_result
+
+    - name: Launch EC2 instance for Jenkins
+      amazon.aws.ec2_instance:
+        aws_access_key: "{{ access_key }}"
+        aws_secret_key: "{{ secret_key }}"
+        name: "jenkins-install"
+        region: "{{ aws_region }}"
+        instance_type: "{{ instance_type }}"
+        image_id: "{{ ami_id }}"
+        key_name: "{{ key_name }}"
+        subnet_id: "{{ subnet_id }}"
+        security_groups:
+          - "{{ security_group_name }}"
+        user_data: |
+          #!/bin/bash
+          sudo yum update -y
+          sudo yum install git -y
+          sudo wget -O /etc/yum.repos.d/jenkins.repo https://pkg.jenkins.io/redhat-stable/jenkins>
+          sudo rpm --import https://pkg.jenkins.io/redhat-stable/jenkins.io-2023.key
+          sudo yum upgrade
+          sudo dnf install java-17-amazon-corretto -y
+          sudo yum install jenkins -y
+          sudo systemctl enable Jenkins
+          sudo systemctl start jenkins
+        wait: yes
+      register: ec2
+
