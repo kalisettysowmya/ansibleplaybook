@@ -1,0 +1,47 @@
+---
+- name: Install Apache on EC2 
+  hosts: localhost
+  connection: local
+  gather_facts: no
+  tasks:
+    - name: Add HTTP rule to security group
+      amazon.aws.ec2_security_group:
+        name: apache-sg
+        description: Security group for Apache Server
+        region: us-east-2
+        rules:
+          - proto: tcp
+            ports: 
+              - 22
+            cidr_ip: 0.0.0.0/0
+          - proto: tcp
+            ports:
+              - 80
+            cidr_ip: 0.0.0.0/0
+        rules_egress:
+          - proto: -1
+            cidr_ip: 0.0.0.0/0
+        state: present
+      register: sg_result
+
+    - name: Install Apache on EC2
+      amazon.aws.ec2_instance:
+        name: Apache Install Server
+        instance_type: t2.micro
+        key_name: Keypair1
+        network:
+          assign_public_ip: true
+        user_data: |
+          #!/bin/bash
+          sudo yum update -y
+          sudo yum install -y httpd
+          sudo systemctl start httpd
+          sudo systemctl enable httpd
+          echo "<html><h1>Welcome to Apache on EC2</h1></html>" > /var/www/html/index.html
+        image_id: ami-08970251d20e940b0
+        region: us-east-2
+        vpc_subnet_id: subnet-0f551d8771ffffa41
+        security_groups: "{{ sg_result.group_id }}"
+        wait: yes
+      register: ec2
+
