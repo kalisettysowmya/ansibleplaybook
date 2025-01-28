@@ -37,7 +37,7 @@
           sudo yum install -y httpd
           sudo systemctl start httpd
           sudo systemctl enable httpd
-          echo "<html><h1>Welcome to Apache on EC2 and it is working fine</h1></html>" > /var/www/html/index.html
+          echo "<html><h1>Welcome to Apache on EC2</h1></html>" > /var/www/html/index.html
         image_id: ami-08970251d20e940b0
         region: us-east-2
         vpc_subnet_id: subnet-0f551d8771ffffa41
