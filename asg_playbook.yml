@@ -1,0 +1,5 @@
+- hosts: localhost
+  vars_files:
+    - asg_role/vars/main.yml
+  roles:
+    - asg_role

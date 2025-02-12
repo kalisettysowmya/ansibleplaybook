@@ -1,0 +1,31 @@
+# tasks file for asg_role
+# tasks/main.yml
+- name: Ensure Launch Template exists
+  ec2_launch_template:
+    name: "{{ launch_template_name }}"
+    image_id: "{{ ami_id }}"
+    instance_type: "{{ instance_type }}"
+    key_name: "{{ key_name }}"
+    security_group_ids: "{{ security_group_ids }}"
+    region: "{{ region }}"
+    aws_access_key: "{{ aws_access_key }}" 
+    aws_secret_key: "{{ aws_secret_key }}"
+    state: present
+  register: launch_template
+
+- name: Create Auto Scaling Group
+  ec2_asg:
+    name: "{{ asg_name }}"
+    launch_template:
+      launch_template_name: "{{ launch_template_name }}"
+      version: "$Latest"
+    min_size: "{{ min_size }}"
+    max_size: "{{ max_size }}"
+    desired_capacity: "{{ desired_capacity }}"
+    vpc_zone_identifier: "{{ subnet_ids }}"
+    region: "{{ region }}"
+    aws_access_key: "{{ aws_access_key }}"
+    aws_secret_key: "{{ aws_secret_key }}"
+    state: present
+  register: asg
+

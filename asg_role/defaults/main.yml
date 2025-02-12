@@ -1,0 +1,17 @@
+# defaults file for asg_role
+# defaults/main.yml
+region: us-east-2
+instance_type: t2.micro
+ami_id: ami-08970251d20e940b0 
+key_name: Keypair1         
+security_group_ids:
+  - sg-02727e1081ada619a      
+subnet_ids:
+  - subnet-0f551d8771ffffa41  
+min_size: 1                   
+max_size: 3                   
+desired_capacity: 2           
+asg_name: my-asg
+launch_template_name: my-asg-template  
+
+
